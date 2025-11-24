@@ -951,20 +951,40 @@ a:hover {
     font-weight: 500;
 }
 
-.form-input {
+.form-input,
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form textarea {
     width: 100%;
     padding: var(--spacing-md);
-    background: var(--color-bg-tertiary);
+    background: var(--color-bg-tertiary) !important;
+    background-color: #18181b !important;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    color: var(--color-text-primary);
+    color: var(--color-text-primary) !important;
     font-family: var(--font-primary);
     font-size: 1rem;
     transition: all var(--transition-base);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-.form-input::placeholder {
-    color: var(--color-text-muted);
+.form-input::placeholder,
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+    color: var(--color-text-muted) !important;
+    opacity: 1;
+}
+
+/* Autofill override for dark theme */
+.contact-form input:-webkit-autofill,
+.contact-form input:-webkit-autofill:hover,
+.contact-form input:-webkit-autofill:focus,
+.contact-form textarea:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #18181b inset !important;
+    -webkit-text-fill-color: #fafafa !important;
+    border: 1px solid var(--color-border) !important;
 }
 
 .form-input:focus {

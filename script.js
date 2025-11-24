@@ -1,5 +1,5 @@
 /**
- * Yasar Arafath - Portfolio Website
+ * Yasar Arafath J - Portfolio Website
  * JavaScript for animations and interactivity
  */
 
@@ -235,7 +235,7 @@
     // ===================================
     // Console Welcome Message
     // ===================================
-    console.log('%c Welcome to Yasar Arafath\'s Portfolio!',
+    console.log('%c Welcome to Yasar Arafath J\'s Portfolio!',
         'background: #06b6d4; color: #0a0a0b; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 4px;');
     console.log('%c Built with vanilla HTML, CSS & JavaScript',
         'color: #a1a1aa; padding: 5px 0;');

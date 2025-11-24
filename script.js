@@ -252,4 +252,146 @@
         }, 100);
     });
 
+    // ===================================
+    // Contact Form Validation & Submission
+    // ===================================
+    const contactForm = document.getElementById('contact-form');
+    const formStatus = document.getElementById('form-status');
+
+    if (contactForm) {
+        const emailInput = document.getElementById('email');
+        const nameInput = document.getElementById('name');
+        const subjectInput = document.getElementById('subject');
+        const messageInput = document.getElementById('message');
+        const submitBtn = contactForm.querySelector('.btn-submit');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnLoading = submitBtn.querySelector('.btn-loading');
+
+        // Email validation regex
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+        // Validate individual field
+        function validateField(input, errorId, validationFn, errorMessage) {
+            const errorElement = document.getElementById(errorId);
+            const value = input.value.trim();
+
+            if (!value) {
+                input.classList.remove('success', 'error');
+                errorElement.textContent = '';
+                return false;
+            }
+
+            if (validationFn(value)) {
+                input.classList.remove('error');
+                input.classList.add('success');
+                errorElement.textContent = '';
+                return true;
+            } else {
+                input.classList.remove('success');
+                input.classList.add('error');
+                errorElement.textContent = errorMessage;
+                return false;
+            }
+        }
+
+        // Validation functions
+        function validateEmail(value) {
+            return emailRegex.test(value);
+        }
+
+        function validateName(value) {
+            return value.length >= 2;
+        }
+
+        function validateSubject(value) {
+            return value.length >= 3;
+        }
+
+        function validateMessage(value) {
+            return value.length >= 10;
+        }
+
+        // Real-time validation on input
+        emailInput.addEventListener('input', () => {
+            validateField(emailInput, 'email-error', validateEmail, 'Please enter a valid email address');
+        });
+
+        nameInput.addEventListener('input', () => {
+            validateField(nameInput, 'name-error', validateName, 'Name must be at least 2 characters');
+        });
+
+        subjectInput.addEventListener('input', () => {
+            validateField(subjectInput, 'subject-error', validateSubject, 'Subject must be at least 3 characters');
+        });
+
+        messageInput.addEventListener('input', () => {
+            validateField(messageInput, 'message-error', validateMessage, 'Message must be at least 10 characters');
+        });
+
+        // Validate all fields
+        function validateForm() {
+            const isEmailValid = validateField(emailInput, 'email-error', validateEmail, 'Please enter a valid email address');
+            const isNameValid = validateField(nameInput, 'name-error', validateName, 'Name must be at least 2 characters');
+            const isSubjectValid = validateField(subjectInput, 'subject-error', validateSubject, 'Subject must be at least 3 characters');
+            const isMessageValid = validateField(messageInput, 'message-error', validateMessage, 'Message must be at least 10 characters');
+
+            return isEmailValid && isNameValid && isSubjectValid && isMessageValid;
+        }
+
+        // Form submission
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Clear previous status
+            formStatus.textContent = '';
+            formStatus.className = 'form-status';
+
+            // Validate all fields
+            if (!validateForm()) {
+                formStatus.textContent = 'Please fix the errors above';
+                formStatus.classList.add('error');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+
+            try {
+                const formData = new FormData(contactForm);
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Success
+                    formStatus.textContent = 'Thank you! Your message has been sent. I will reply to your email soon.';
+                    formStatus.classList.add('success');
+                    contactForm.reset();
+
+                    // Remove success classes from inputs
+                    [emailInput, nameInput, subjectInput, messageInput].forEach(input => {
+                        input.classList.remove('success', 'error');
+                    });
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                formStatus.textContent = 'Oops! Something went wrong. Please try again or email me directly.';
+                formStatus.classList.add('error');
+                console.error('Form submission error:', error);
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            }
+        });
+    }
+
 })();

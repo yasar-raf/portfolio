@@ -13,30 +13,32 @@
     const emptyState = document.getElementById('empty-state');
     const filterButtons = document.querySelectorAll('.filter-btn');
 
-    let allPosts = [];
     let currentFilter = 'all';
+
+    // ===================================
+    // Blog Posts Data
+    // ===================================
+    const allPosts = [
+        {
+            "id": 1,
+            "title": "What You DON'T Need to Know as a Product Manager (That's OK)",
+            "excerpt": "PMs sometimes feel pressure to understand every technical detail. You don't. Learn the balance between too little, too much, and just right technical knowledge for effective product management.",
+            "content": "You don't need deep algorithms or system internals — just the high-level tech basics, what they solve, key trade-offs, and when to pull in engineering.\n\nWhat You DON'T Need to Know\n\nPMs sometimes feel pressure to understand every technical detail. You don't.\n\nYou can safely NOT know:\n• How to implement a binary search tree\n• The difference between O(n) and O(log n) complexity\n• How exactly a GPU processes tensor operations\n• The intricacies of memory management in C++\n• Exactly which AWS service to choose\n• How to write production code\n• Database indexing algorithms\n• Network protocol specifications\n\nWhat You DO Need to Know\n\nYou need to know enough to:\n• Ask intelligent questions\n• Understand what problems different technologies solve\n• Evaluate trade-offs (speed vs cost vs complexity)\n• Recognize when something is complex\n• Translate technical constraints to stakeholders\n• Know when to defer to engineering expertise\n\nThe Balance\n\nToo Little Technical Knowledge\n\nPM: \"Just make it work, I don't care how\"\n\nResult:\n• Engineers frustrated\n• Bad decisions made\n• No collaboration\n• Unrealistic expectations\n\nToo Much Technical Knowledge\n\nPM: \"Actually, we should use Kafka instead of RabbitMQ because of partition rebalancing...\"\n\nResult:\n• You're doing engineer's job\n• Neglecting PM responsibilities\n• Team unclear on roles\n• Decision paralysis\n\nJust Right Technical Knowledge\n\nPM: \"Help me understand the trade-offs so we can make the best decision for the product\"\n\nResult:\n• Collaborative decision-making\n• Clear roles\n• Informed choices\n• Mutual respect\n\nReal Example\n\nEngineer: \"We need to migrate to microservices\"\n\n❌ Too Little: \"What are microservices?\"\n\n❌ Too Much: \"Let's use event-driven architecture with CQRS and event sourcing...\"\n\n✅ Just Right: \"What problems with our current setup does this solve? What's the migration cost and risk? How does this affect our ability to ship features?\"\n\nAnother Example\n\nEngineer: \"The API is slow because of N+1 queries\"\n\n❌ Too Little: \"Just fix it\" (dismissive)\n\n❌ Too Much: \"We should implement eager loading with joins and add database indexes on foreign keys...\" (too technical)\n\n✅ Just Right: \"Help me understand: Is this a database issue or code issue? How many users are affected? Can we fix this incrementally or does it need a full rewrite?\"\n\nYour Role\n\nTrust engineers on: Implementation details, technology choices, architecture decisions\n\nLead the team on: Strategic direction, product priorities, customer problems, business trade-offs\n\nThe Bottom Line\n\nYour job is synthesis and decision-making, not technical implementation.\n\nKnow enough to be a good thought partner. Not enough to do their job.",
+            "category": "product",
+            "tags": ["Product Management", "Technical Knowledge", "Collaboration", "Leadership", "Engineering"],
+            "author": "Yasar Arafath J",
+            "authorRole": "Product Manager",
+            "date": "2024-11-20",
+            "readingTime": 7,
+            "url": "#"
+        }
+    ];
 
     // ===================================
     // Load Blog Posts
     // ===================================
-    async function loadBlogPosts() {
-        try {
-            const response = await fetch('blog-posts.json', {
-                cache: 'no-cache'
-            });
-            if (!response.ok) {
-                throw new Error('Failed to load blog posts');
-            }
-            allPosts = await response.json();
-            renderBlogPosts(allPosts);
-        } catch (error) {
-            console.error('Error loading blog posts:', error);
-            blogGrid.innerHTML = `
-                <div class="error-state">
-                    <p>Failed to load blog posts. Please try again later.</p>
-                </div>
-            `;
-        }
+    function loadBlogPosts() {
+        renderBlogPosts(allPosts);
     }
 
     // ===================================

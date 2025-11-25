@@ -21,7 +21,9 @@
     // ===================================
     async function loadBlogPosts() {
         try {
-            const response = await fetch('blog-posts.json');
+            const response = await fetch('blog-posts.json', {
+                cache: 'no-cache'
+            });
             if (!response.ok) {
                 throw new Error('Failed to load blog posts');
             }

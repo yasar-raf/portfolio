@@ -72,6 +72,9 @@
             // Calculate reading time
             const readingTime = post.readingTime || calculateReadingTime(post.content);
 
+            article.setAttribute('data-post-id', post.id);
+            article.style.cursor = 'pointer';
+
             article.innerHTML = `
                 <div class="blog-card-header">
                     <span class="blog-category">${getCategoryLabel(post.category)}</span>
@@ -106,24 +109,23 @@
                         ${post.tags.map(tag => `<span class="blog-tag">${tag}</span>`).join('')}
                     </div>
                 </div>
-                <button class="blog-card-link" data-post-id="${post.id}" aria-label="Read more about ${post.title}">
+                <span class="blog-card-link" aria-label="Read more about ${post.title}">
                     Read More
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                </button>
+                </span>
             `;
 
             blogGrid.appendChild(article);
         });
 
-        // Add click event listeners to Read More buttons
-        const readMoreButtons = document.querySelectorAll('.blog-card-link');
-        readMoreButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const postId = parseInt(button.getAttribute('data-post-id'));
+        // Add click event listeners to blog cards
+        const blogCards = document.querySelectorAll('.blog-card');
+        blogCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                const postId = parseInt(card.getAttribute('data-post-id'));
                 const post = allPosts.find(p => p.id === postId);
                 if (post) {
                     openPostModal(post);

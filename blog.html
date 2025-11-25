@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blog by Yasar Arafath J - Expert insights on AI, Product Management, Machine Learning, and Technology Innovation">
+    <meta name="keywords" content="AI Blog, Product Management, Machine Learning, Technology, Artificial Intelligence, Product Strategy, LLM, NLP">
+    <meta name="author" content="Yasar Arafath J">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yasararafathj.com/blog.html">
+    <meta property="og:title" content="Blog | Yasar Arafath J - AI & Product Management Insights">
+    <meta property="og:description" content="Expert insights on AI, Product Management, and Technology Innovation">
+    <meta property="og:image" content="https://yasararafathj.com/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yasararafathj.com/blog.html">
+    <meta property="twitter:title" content="Blog | Yasar Arafath J - AI & Product Management Insights">
+    <meta property="twitter:description" content="Expert insights on AI, Product Management, and Technology Innovation">
+    <meta property="twitter:image" content="https://yasararafathj.com/og-image.jpg">
+
+    <title>Blog | Yasar Arafath J - AI & Product Management Insights</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="canonical" href="https://yasararafathj.com/blog.html">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">YA</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="hamburger"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="index.html#projects" class="nav-link">Projects</a></li>
+                <li><a href="index.html#skills" class="nav-link">Skills</a></li>
+                <li><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Blog Header -->
+    <header class="blog-header">
+        <div class="container">
+            <h1 class="blog-header-title fade-in">Blog</h1>
+            <p class="blog-header-subtitle fade-in delay-1">Thoughts on AI, Product Management, and Technology</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- Filter Section -->
+        <section class="blog-filters">
+            <div class="container">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-category="all">All Posts</button>
+                    <button class="filter-btn" data-category="ai">AI</button>
+                    <button class="filter-btn" data-category="product">Product Management</button>
+                    <button class="filter-btn" data-category="tech">Technology</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Posts Grid -->
+        <section class="section blog-posts">
+            <div class="container">
+                <div id="blog-grid" class="blog-grid">
+                    <!-- Blog posts will be loaded here dynamically -->
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading posts...</p>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    <h3>No posts found</h3>
+                    <p>There are no posts matching your filter.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Yasar Arafath J. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="blog.js"></script>
+</body>
+</html>

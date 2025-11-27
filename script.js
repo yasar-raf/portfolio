@@ -241,6 +241,47 @@
         'color: #a1a1aa; padding: 5px 0;');
 
     // ===================================
+    // Date Time Display
+    // ===================================
+    const datetimeDisplay = document.getElementById('datetime-display');
+    const currentTimeEl = document.getElementById('current-time');
+    const currentDateEl = document.getElementById('current-date');
+
+    function updateDateTime() {
+        const now = new Date();
+
+        // Format time (HH:MM:SS)
+        const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        const timeString = now.toLocaleTimeString('en-US', timeOptions);
+
+        // Format date (Day, Month DD, YYYY)
+        const dateOptions = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+        const dateString = now.toLocaleDateString('en-US', dateOptions);
+
+        if (currentTimeEl) currentTimeEl.textContent = timeString;
+        if (currentDateEl) currentDateEl.textContent = dateString;
+    }
+
+    function toggleDateTimeDisplay() {
+        if (datetimeDisplay) {
+            if (window.scrollY > 100) {
+                datetimeDisplay.classList.add('visible');
+            } else {
+                datetimeDisplay.classList.remove('visible');
+            }
+        }
+    }
+
+    // Update time every second
+    if (currentTimeEl && currentDateEl) {
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    }
+
+    // Show/hide based on scroll
+    window.addEventListener('scroll', toggleDateTimeDisplay);
+
+    // ===================================
     // Page Load Complete
     // ===================================
     window.addEventListener('load', () => {
@@ -250,6 +291,9 @@
         setTimeout(() => {
             revealOnScroll();
         }, 100);
+
+        // Initial check for datetime display
+        toggleDateTimeDisplay();
     });
 
     // ===================================

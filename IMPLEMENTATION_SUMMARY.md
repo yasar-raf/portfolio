@@ -107,10 +107,10 @@ const BACKEND_URL = 'http://localhost:3000';
 ### Step 2: Add Environment Variables in Railway
 In Railway dashboard → Variables tab, add:
 ```
-RECAPTCHA_SECRET_KEY=6LdfhCIsAAAAAN97D5ncgpj5ACtgcnt9rKJymKK2
-MAILGUN_API_KEY=b705996ce05cb6d31e9a5f50fa71cd60-e1076420-f1c7e1b3
-MAILGUN_DOMAIN=mail.getcurious.dev
-ADMIN_EMAIL=yasararafathjiy@gmail.com
+RECAPTCHA_SECRET_KEY=
+MAILGUN_API_KEY=
+MAILGUN_DOMAIN=
+ADMIN_EMAIL=
 ```
 
 ### Step 3: Get Your URL

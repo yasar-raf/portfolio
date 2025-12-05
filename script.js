@@ -301,7 +301,7 @@
     // ===================================
     const contactForm = document.getElementById('contact-form');
     const formStatus = document.getElementById('form-status');
-    const BACKEND_URL = 'https://portfolio-backend-prod.railway.app'; // Railway backend URL
+    const BACKEND_URL = 'https://portfolio-production-91f1.up.railway.app/'; // Railway backend URL
 
     if (contactForm) {
         // Form elements

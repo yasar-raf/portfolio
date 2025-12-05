@@ -7,6 +7,8 @@
     <meta name="keywords" content="Product Manager, AI, Machine Learning, Technology">
     <title>Yasar Arafath J | Product Manager</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -194,61 +196,98 @@
                     <!-- Contact Form -->
                     <div class="contact-form-container">
                         <h3 class="form-title">Send Me a Message</h3>
-                        <form id="contact-form" class="contact-form" action="https://formspree.io/f/xldkejby" method="POST">
-                            <div class="form-group">
-                                <label for="email" class="form-label">Your Email *</label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    class="form-input"
-                                    placeholder="your.email@example.com"
-                                    required
-                                    autocomplete="email"
-                                >
-                                <span class="form-error" id="email-error"></span>
+                        <form id="contact-form" class="contact-form">
+                            <!-- Email Verification Section -->
+                            <div id="email-verification-section">
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Your Email *</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        class="form-input"
+                                        placeholder="your.email@example.com"
+                                        required
+                                        autocomplete="email"
+                                    >
+                                    <span class="form-error" id="email-error"></span>
+                                </div>
+                                <button type="button" id="send-otp-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 20px;">
+                                    <span class="btn-text">Send OTP</span>
+                                    <span class="btn-loading" style="display: none;">Sending...</span>
+                                </button>
                             </div>
-                            <div class="form-group">
-                                <label for="name" class="form-label">Your Name *</label>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    class="form-input"
-                                    placeholder="John Doe"
-                                    required
-                                    autocomplete="name"
-                                >
-                                <span class="form-error" id="name-error"></span>
+
+                            <!-- OTP Verification Section -->
+                            <div id="otp-verification-section" style="display: none;">
+                                <div class="form-group">
+                                    <label for="otp" class="form-label">Enter OTP *</label>
+                                    <input
+                                        type="text"
+                                        id="otp"
+                                        name="otp"
+                                        class="form-input"
+                                        placeholder="Enter 6-digit OTP"
+                                        maxlength="6"
+                                        required
+                                    >
+                                    <span class="form-error" id="otp-error"></span>
+                                    <small style="color: #999; display: block; margin-top: 8px;">OTP expires in 10 minutes</small>
+                                </div>
+                                <button type="button" id="verify-otp-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 20px;">
+                                    <span class="btn-text">Verify OTP</span>
+                                    <span class="btn-loading" style="display: none;">Verifying...</span>
+                                </button>
+                                <p style="text-align: center; color: #999; font-size: 14px; margin-bottom: 15px;">
+                                    Didn't receive OTP? <a href="#" id="resend-otp-link" style="color: #06b6d4; text-decoration: none;">Resend</a>
+                                </p>
                             </div>
-                            <div class="form-group">
-                                <label for="subject" class="form-label">Subject *</label>
-                                <input
-                                    type="text"
-                                    id="subject"
-                                    name="subject"
-                                    class="form-input"
-                                    placeholder="Project Collaboration"
-                                    required
-                                >
-                                <span class="form-error" id="subject-error"></span>
+
+                            <!-- Form Section (hidden until OTP verified) -->
+                            <div id="form-section" style="display: none;">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">Your Name *</label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        class="form-input"
+                                        placeholder="John Doe"
+                                        required
+                                        autocomplete="name"
+                                    >
+                                    <span class="form-error" id="name-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="subject" class="form-label">Subject *</label>
+                                    <input
+                                        type="text"
+                                        id="subject"
+                                        name="subject"
+                                        class="form-input"
+                                        placeholder="Project Collaboration"
+                                        required
+                                    >
+                                    <span class="form-error" id="subject-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message" class="form-label">Message *</label>
+                                    <textarea
+                                        id="message"
+                                        name="message"
+                                        class="form-input form-textarea"
+                                        placeholder="Tell me about your project or inquiry..."
+                                        rows="5"
+                                        required
+                                    ></textarea>
+                                    <span class="form-error" id="message-error"></span>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-submit">
+                                    <span class="btn-text">Send Message</span>
+                                    <span class="btn-loading" style="display: none;">Sending...</span>
+                                </button>
                             </div>
-                            <div class="form-group">
-                                <label for="message" class="form-label">Message *</label>
-                                <textarea
-                                    id="message"
-                                    name="message"
-                                    class="form-input form-textarea"
-                                    placeholder="Tell me about your project or inquiry..."
-                                    rows="5"
-                                    required
-                                ></textarea>
-                                <span class="form-error" id="message-error"></span>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-submit">
-                                <span class="btn-text">Send Message</span>
-                                <span class="btn-loading" style="display: none;">Sending...</span>
-                            </button>
+
                             <div class="form-status" id="form-status"></div>
                         </form>
                     </div>

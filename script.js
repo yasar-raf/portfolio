@@ -297,25 +297,211 @@
     });
 
     // ===================================
-    // Contact Form Validation & Submission
+    // Contact Form with reCAPTCHA & OTP Verification
     // ===================================
     const contactForm = document.getElementById('contact-form');
     const formStatus = document.getElementById('form-status');
+    const BACKEND_URL = 'https://portfolio-backend-prod.railway.app'; // Railway backend URL
 
     if (contactForm) {
+        // Form elements
         const emailInput = document.getElementById('email');
         const nameInput = document.getElementById('name');
         const subjectInput = document.getElementById('subject');
         const messageInput = document.getElementById('message');
+        const otpInput = document.getElementById('otp');
+
+        // Section elements
+        const emailVerificationSection = document.getElementById('email-verification-section');
+        const otpVerificationSection = document.getElementById('otp-verification-section');
+        const formSection = document.getElementById('form-section');
+
+        // Button elements
+        const sendOtpBtn = document.getElementById('send-otp-btn');
+        const verifyOtpBtn = document.getElementById('verify-otp-btn');
+        const resendOtpLink = document.getElementById('resend-otp-link');
         const submitBtn = contactForm.querySelector('.btn-submit');
-        const btnText = submitBtn.querySelector('.btn-text');
-        const btnLoading = submitBtn.querySelector('.btn-loading');
+
+        // State
+        let verifiedEmail = null;
+        let isOtpVerified = false;
 
         // Email validation regex
         const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
-        // Validate individual field
-        function validateField(input, errorId, validationFn, errorMessage) {
+        // Helper: Show status message
+        function showStatus(message, type = 'info') {
+            formStatus.textContent = message;
+            formStatus.className = `form-status ${type}`;
+        }
+
+        // Helper: Set button loading state
+        function setButtonLoading(btn, isLoading) {
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoading = btn.querySelector('.btn-loading');
+            btn.disabled = isLoading;
+            if (isLoading) {
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline';
+            } else {
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            }
+        }
+
+        // Helper: Get reCAPTCHA token
+        function getRecaptchaToken() {
+            return new Promise((resolve) => {
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('6LdfhCIsAAAAAMnS3mBat4DdJRXuvzOh4UEfjkmz', {action: 'submit'}).then(function(token) {
+                        resolve(token);
+                    });
+                });
+            });
+        }
+
+        // Send OTP
+        sendOtpBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+
+            // Validate email
+            if (!email || !emailRegex.test(email)) {
+                const errorEl = document.getElementById('email-error');
+                errorEl.textContent = 'Please enter a valid email address';
+                emailInput.classList.add('error');
+                return;
+            }
+
+            // Clear error
+            document.getElementById('email-error').textContent = '';
+            emailInput.classList.remove('error');
+
+            // Get reCAPTCHA token
+            setButtonLoading(sendOtpBtn, true);
+            try {
+                const recaptchaToken = await getRecaptchaToken();
+
+                // Verify reCAPTCHA with backend
+                const recaptchaResponse = await fetch(`${BACKEND_URL}/api/verify-recaptcha`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: recaptchaToken })
+                });
+
+                if (!recaptchaResponse.ok) {
+                    const error = await recaptchaResponse.json();
+                    showStatus(error.error || 'reCAPTCHA verification failed', 'error');
+                    setButtonLoading(sendOtpBtn, false);
+                    return;
+                }
+
+                // Send OTP
+                const otpResponse = await fetch(`${BACKEND_URL}/api/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+
+                if (!otpResponse.ok) {
+                    const error = await otpResponse.json();
+                    showStatus(error.error || 'Failed to send OTP', 'error');
+                    setButtonLoading(sendOtpBtn, false);
+                    return;
+                }
+
+                // Success - show OTP section
+                verifiedEmail = email;
+                emailInput.disabled = true;
+                emailVerificationSection.style.display = 'none';
+                otpVerificationSection.style.display = 'block';
+                showStatus('OTP sent! Check your email.', 'success');
+                otpInput.focus();
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+                console.error('Send OTP error:', error);
+            } finally {
+                setButtonLoading(sendOtpBtn, false);
+            }
+        });
+
+        // Verify OTP
+        verifyOtpBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const otp = otpInput.value.trim();
+
+            if (!otp || otp.length !== 6 || isNaN(otp)) {
+                document.getElementById('otp-error').textContent = 'Please enter a valid 6-digit OTP';
+                otpInput.classList.add('error');
+                return;
+            }
+
+            document.getElementById('otp-error').textContent = '';
+            otpInput.classList.remove('error');
+
+            setButtonLoading(verifyOtpBtn, true);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: verifiedEmail, otp: otp })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    const errorMsg = error.error + (error.attemptsLeft ? ` (${error.attemptsLeft} attempts left)` : '');
+                    showStatus(errorMsg, 'error');
+                    document.getElementById('otp-error').textContent = error.error;
+                    otpInput.classList.add('error');
+                    setButtonLoading(verifyOtpBtn, false);
+                    return;
+                }
+
+                // Success - show form section
+                isOtpVerified = true;
+                otpVerificationSection.style.display = 'none';
+                formSection.style.display = 'block';
+                showStatus('Email verified! Please fill in your details.', 'success');
+                nameInput.focus();
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+                console.error('Verify OTP error:', error);
+            } finally {
+                setButtonLoading(verifyOtpBtn, false);
+            }
+        });
+
+        // Resend OTP
+        resendOtpLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            setButtonLoading(sendOtpBtn, true);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: verifiedEmail })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    showStatus(error.error || 'Failed to resend OTP', 'error');
+                    return;
+                }
+
+                showStatus('New OTP sent! Check your email.', 'success');
+                otpInput.value = '';
+                document.getElementById('otp-error').textContent = '';
+                otpInput.classList.remove('error', 'success');
+                otpInput.focus();
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            } finally {
+                setButtonLoading(sendOtpBtn, false);
+            }
+        });
+
+        // Real-time validation
+        const validateField = (input, errorId, validationFn, errorMessage) => {
             const errorElement = document.getElementById(errorId);
             const value = input.value.trim();
 
@@ -336,104 +522,77 @@
                 errorElement.textContent = errorMessage;
                 return false;
             }
-        }
-
-        // Validation functions
-        function validateEmail(value) {
-            return emailRegex.test(value);
-        }
-
-        function validateName(value) {
-            return value.length >= 2;
-        }
-
-        function validateSubject(value) {
-            return value.length >= 3;
-        }
-
-        function validateMessage(value) {
-            return value.length >= 10;
-        }
-
-        // Real-time validation on input
-        emailInput.addEventListener('input', () => {
-            validateField(emailInput, 'email-error', validateEmail, 'Please enter a valid email address');
-        });
+        };
 
         nameInput.addEventListener('input', () => {
-            validateField(nameInput, 'name-error', validateName, 'Name must be at least 2 characters');
+            validateField(nameInput, 'name-error', (v) => v.length >= 2, 'Name must be at least 2 characters');
         });
 
         subjectInput.addEventListener('input', () => {
-            validateField(subjectInput, 'subject-error', validateSubject, 'Subject must be at least 3 characters');
+            validateField(subjectInput, 'subject-error', (v) => v.length >= 3, 'Subject must be at least 3 characters');
         });
 
         messageInput.addEventListener('input', () => {
-            validateField(messageInput, 'message-error', validateMessage, 'Message must be at least 10 characters');
+            validateField(messageInput, 'message-error', (v) => v.length >= 10, 'Message must be at least 10 characters');
         });
 
-        // Validate all fields
-        function validateForm() {
-            const isEmailValid = validateField(emailInput, 'email-error', validateEmail, 'Please enter a valid email address');
-            const isNameValid = validateField(nameInput, 'name-error', validateName, 'Name must be at least 2 characters');
-            const isSubjectValid = validateField(subjectInput, 'subject-error', validateSubject, 'Subject must be at least 3 characters');
-            const isMessageValid = validateField(messageInput, 'message-error', validateMessage, 'Message must be at least 10 characters');
-
-            return isEmailValid && isNameValid && isSubjectValid && isMessageValid;
-        }
-
         // Form submission
-        contactForm.addEventListener('submit', async function(e) {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Clear previous status
-            formStatus.textContent = '';
-            formStatus.className = 'form-status';
-
-            // Validate all fields
-            if (!validateForm()) {
-                formStatus.textContent = 'Please fix the errors above';
-                formStatus.classList.add('error');
+            if (!isOtpVerified) {
+                showStatus('Please verify your email first', 'error');
                 return;
             }
 
-            // Show loading state
-            submitBtn.disabled = true;
-            btnText.style.display = 'none';
-            btnLoading.style.display = 'inline';
+            // Validate form fields
+            const isNameValid = validateField(nameInput, 'name-error', (v) => v.length >= 2, 'Name must be at least 2 characters');
+            const isSubjectValid = validateField(subjectInput, 'subject-error', (v) => v.length >= 3, 'Subject must be at least 3 characters');
+            const isMessageValid = validateField(messageInput, 'message-error', (v) => v.length >= 10, 'Message must be at least 10 characters');
 
+            if (!isNameValid || !isSubjectValid || !isMessageValid) {
+                showStatus('Please fix the errors above', 'error');
+                return;
+            }
+
+            setButtonLoading(submitBtn, true);
             try {
-                const formData = new FormData(contactForm);
-                const response = await fetch(contactForm.action, {
+                const response = await fetch(`${BACKEND_URL}/api/submit-contact`, {
                     method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: verifiedEmail,
+                        name: nameInput.value.trim(),
+                        subject: subjectInput.value.trim(),
+                        message: messageInput.value.trim()
+                    })
                 });
 
-                if (response.ok) {
-                    // Success
-                    formStatus.textContent = 'Thank you! Your message has been sent. I will reply to your email soon.';
-                    formStatus.classList.add('success');
-                    contactForm.reset();
-
-                    // Remove success classes from inputs
-                    [emailInput, nameInput, subjectInput, messageInput].forEach(input => {
-                        input.classList.remove('success', 'error');
-                    });
-                } else {
-                    throw new Error('Form submission failed');
+                if (!response.ok) {
+                    const error = await response.json();
+                    showStatus(error.error || 'Failed to submit form', 'error');
+                    setButtonLoading(submitBtn, false);
+                    return;
                 }
+
+                // Success
+                showStatus('Thank you! Your message has been sent. Check your email for confirmation.', 'success');
+
+                // Reset form
+                contactForm.reset();
+                isOtpVerified = false;
+                verifiedEmail = null;
+                emailInput.disabled = false;
+                formSection.style.display = 'none';
+                emailVerificationSection.style.display = 'block';
+                [emailInput, nameInput, subjectInput, messageInput, otpInput].forEach(input => {
+                    input.classList.remove('success', 'error');
+                });
             } catch (error) {
-                formStatus.textContent = 'Oops! Something went wrong. Please try again or email me directly.';
-                formStatus.classList.add('error');
+                showStatus('Error: ' + error.message, 'error');
                 console.error('Form submission error:', error);
             } finally {
-                // Reset button state
-                submitBtn.disabled = false;
-                btnText.style.display = 'inline';
-                btnLoading.style.display = 'none';
+                setButtonLoading(submitBtn, false);
             }
         });
     }

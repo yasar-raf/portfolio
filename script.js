@@ -349,6 +349,15 @@
             }
         }
 
+        // Helper: Fetch with timeout
+        function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+            return fetch(url, { ...options, signal: controller.signal })
+                .finally(() => clearTimeout(timeoutId));
+        }
+
         // Helper: Get reCAPTCHA token
         function getRecaptchaToken() {
             return new Promise((resolve) => {
@@ -383,11 +392,11 @@
                 const recaptchaToken = await getRecaptchaToken();
 
                 // Verify reCAPTCHA with backend
-                const recaptchaResponse = await fetch(`${BACKEND_URL}/api/verify-recaptcha`, {
+                const recaptchaResponse = await fetchWithTimeout(`${BACKEND_URL}/api/verify-recaptcha`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: recaptchaToken })
-                });
+                }, 15000);
 
                 if (!recaptchaResponse.ok) {
                     const error = await recaptchaResponse.json();
@@ -397,11 +406,11 @@
                 }
 
                 // Send OTP
-                const otpResponse = await fetch(`${BACKEND_URL}/api/send-otp`, {
+                const otpResponse = await fetchWithTimeout(`${BACKEND_URL}/api/send-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
-                });
+                }, 30000);
 
                 if (!otpResponse.ok) {
                     const error = await otpResponse.json();
@@ -418,7 +427,10 @@
                 showStatus('OTP sent! Check your email.', 'success');
                 otpInput.focus();
             } catch (error) {
-                showStatus('Error: ' + error.message, 'error');
+                const errorMessage = error.name === 'AbortError'
+                    ? 'Request timeout. Please check your connection and try again.'
+                    : 'Error: ' + error.message;
+                showStatus(errorMessage, 'error');
                 console.error('Send OTP error:', error);
             } finally {
                 setButtonLoading(sendOtpBtn, false);
@@ -441,11 +453,11 @@
 
             setButtonLoading(verifyOtpBtn, true);
             try {
-                const response = await fetch(`${BACKEND_URL}/api/verify-otp`, {
+                const response = await fetchWithTimeout(`${BACKEND_URL}/api/verify-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: verifiedEmail, otp: otp })
-                });
+                }, 15000);
 
                 if (!response.ok) {
                     const error = await response.json();
@@ -464,7 +476,10 @@
                 showStatus('Email verified! Please fill in your details.', 'success');
                 nameInput.focus();
             } catch (error) {
-                showStatus('Error: ' + error.message, 'error');
+                const errorMessage = error.name === 'AbortError'
+                    ? 'Request timeout. Please check your connection and try again.'
+                    : 'Error: ' + error.message;
+                showStatus(errorMessage, 'error');
                 console.error('Verify OTP error:', error);
             } finally {
                 setButtonLoading(verifyOtpBtn, false);
@@ -476,11 +491,11 @@
             e.preventDefault();
             setButtonLoading(sendOtpBtn, true);
             try {
-                const response = await fetch(`${BACKEND_URL}/api/send-otp`, {
+                const response = await fetchWithTimeout(`${BACKEND_URL}/api/send-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: verifiedEmail })
-                });
+                }, 30000);
 
                 if (!response.ok) {
                     const error = await response.json();
@@ -494,7 +509,10 @@
                 otpInput.classList.remove('error', 'success');
                 otpInput.focus();
             } catch (error) {
-                showStatus('Error: ' + error.message, 'error');
+                const errorMessage = error.name === 'AbortError'
+                    ? 'Request timeout. Please check your connection and try again.'
+                    : 'Error: ' + error.message;
+                showStatus(errorMessage, 'error');
             } finally {
                 setButtonLoading(sendOtpBtn, false);
             }
@@ -557,7 +575,7 @@
 
             setButtonLoading(submitBtn, true);
             try {
-                const response = await fetch(`${BACKEND_URL}/api/submit-contact`, {
+                const response = await fetchWithTimeout(`${BACKEND_URL}/api/submit-contact`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -566,7 +584,7 @@
                         subject: subjectInput.value.trim(),
                         message: messageInput.value.trim()
                     })
-                });
+                }, 30000);
 
                 if (!response.ok) {
                     const error = await response.json();
@@ -589,7 +607,10 @@
                     input.classList.remove('success', 'error');
                 });
             } catch (error) {
-                showStatus('Error: ' + error.message, 'error');
+                const errorMessage = error.name === 'AbortError'
+                    ? 'Request timeout. Please check your connection and try again.'
+                    : 'Error: ' + error.message;
+                showStatus(errorMessage, 'error');
                 console.error('Form submission error:', error);
             } finally {
                 setButtonLoading(submitBtn, false);

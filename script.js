@@ -301,7 +301,7 @@
     // ===================================
     const contactForm = document.getElementById('contact-form');
     const formStatus = document.getElementById('form-status');
-    const BACKEND_URL = 'https://portfolio-production-91f1.up.railway.app/'; // Railway backend URL
+    const BACKEND_URL = 'https://portfolio-production-91f1.up.railway.app'; // Railway backend URL (no trailing slash)
 
     if (contactForm) {
         // Form elements
@@ -386,12 +386,22 @@
             document.getElementById('email-error').textContent = '';
             emailInput.classList.remove('error');
 
-            // Get reCAPTCHA token
             setButtonLoading(sendOtpBtn, true);
             try {
-                const recaptchaToken = await getRecaptchaToken();
+                // Get reCAPTCHA token
+                let recaptchaToken;
+                try {
+                    recaptchaToken = await getRecaptchaToken();
+                    console.log('reCAPTCHA token obtained successfully');
+                } catch (err) {
+                    console.error('Failed to get reCAPTCHA token:', err);
+                    showStatus('Security verification failed. Please refresh and try again.', 'error');
+                    setButtonLoading(sendOtpBtn, false);
+                    return;
+                }
 
                 // Verify reCAPTCHA with backend
+                console.log('Verifying reCAPTCHA with backend...');
                 const recaptchaResponse = await fetchWithTimeout(`${BACKEND_URL}/api/verify-recaptcha`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -400,11 +410,13 @@
 
                 if (!recaptchaResponse.ok) {
                     const error = await recaptchaResponse.json();
-                    showStatus(error.error || 'reCAPTCHA verification failed', 'error');
+                    console.error('reCAPTCHA verification failed:', error);
+                    showStatus(error.error || 'reCAPTCHA verification failed. Please try again.', 'error');
                     setButtonLoading(sendOtpBtn, false);
                     return;
                 }
 
+                console.log('reCAPTCHA verified. Sending OTP...');
                 // Send OTP
                 const otpResponse = await fetchWithTimeout(`${BACKEND_URL}/api/send-otp`, {
                     method: 'POST',
@@ -414,7 +426,8 @@
 
                 if (!otpResponse.ok) {
                     const error = await otpResponse.json();
-                    showStatus(error.error || 'Failed to send OTP', 'error');
+                    console.error('OTP send failed:', error);
+                    showStatus(error.error || 'Failed to send OTP. Please check your email address and try again.', 'error');
                     setButtonLoading(sendOtpBtn, false);
                     return;
                 }
@@ -425,6 +438,7 @@
                 emailVerificationSection.style.display = 'none';
                 otpVerificationSection.style.display = 'block';
                 showStatus('OTP sent! Check your email.', 'success');
+                console.log('OTP sent successfully to:', email);
                 otpInput.focus();
             } catch (error) {
                 const errorMessage = error.name === 'AbortError'

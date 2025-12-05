@@ -59,15 +59,15 @@ Updated existing files in root directory
 ## 🔑 API Credentials (Already Configured)
 
 ### reCAPTCHA
-- **Site Key:** `6LdfhCIsAAAAAMnS3mBat4DdJRXuvzOh4UEfjkmz`
-- **Secret Key:** `6LdfhCIsAAAAAN97D5ncgpj5ACtgcnt9rKJymKK2`
+- **Site Key:** 
+- **Secret Key:** 
 
 ### Mailgun
-- **Domain:** `mail.getcurious.dev`
-- **API Key:** `b705996ce05cb6d31e9a5f50fa71cd60-e1076420-f1c7e1b3`
+- **Domain:** 
+- **API Key:** 
 
 ### Admin Email
-- **Email:** `yasararafathjiy@gmail.com`
+- **Email:** 
 
 ---
 
